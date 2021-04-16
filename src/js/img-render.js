@@ -1,18 +1,35 @@
-import fetchImage from './apiService.js';
+import FetchAPI from './apiService.js';
 import cardTemplate from '../templates/img-card-thumb.hbs';
 import refs from './refs.js';
 
-refs.searchButton.addEventListener('click', findImg);
+refs.searchForm.addEventListener('submit', findImg);
+refs.loadButton.addEventListener('click', onLoadMore);
 
 function findImg(e) {
-  let query;
   e.preventDefault();
-  query = refs.searchInput.value;
-  if (query === '') {
+  FetchAPI.searchQuery = e.currentTarget.elements.query.value;
+  if (FetchAPI.searchQuery === '') {
     return;
   }
-  fetchImage(query).then(data => {
-    const newArray = data.hits.reduce((acc, el) => cardTemplate(el) + acc, '');
-    refs.imgList.insertAdjacentHTML('beforeend', newArray);
+  FetchAPI.resetPage();
+  FetchAPI.fetchImage().then(images => {
+    clearImgContainer();
+
+    appendImagesMarkup(images);
   });
+}
+
+function onLoadMore() {
+  if (FetchAPI.searchQuery === '') {
+    return;
+  }
+  FetchAPI.fetchImage().then(appendImagesMarkup);
+}
+
+function appendImagesMarkup(images) {
+  refs.imgList.insertAdjacentHTML('beforeend', cardTemplate(images));
+}
+
+function clearImgContainer() {
+  refs.imgList.innerHTML = '';
 }
