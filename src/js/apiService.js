@@ -9,10 +9,10 @@ class FetchImageApi {
   fetchImage() {
     const url = `${BASE_URL}/?image_type=photo&orientation=horizontal&q=${this.searchQuery}&page=${this.pageNumber}&per_page=12&key=${API_KEY}`;
     return fetch(url)
-      .then(r => r.json())
-      .then(data => {
+      .then(response => response.json())
+      .then(({ hits }) => {
         this.incrementPage();
-        return data.hits;
+        return hits;
       });
   }
 
