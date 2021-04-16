@@ -1,29 +1,39 @@
 import FetchAPI from './apiService.js';
 import cardTemplate from '../templates/img-card-thumb.hbs';
 import refs from './refs.js';
+import cautionNotify from './notify.js';
 
 refs.searchForm.addEventListener('submit', findImg);
 refs.loadButton.addEventListener('click', onLoadMore);
 
-function findImg(e) {
+async function findImg(e) {
   e.preventDefault();
   FetchAPI.searchQuery = e.currentTarget.elements.query.value;
   if (FetchAPI.searchQuery === '') {
     return;
   }
-  FetchAPI.resetPage();
-  FetchAPI.fetchImage().then(images => {
+  try {
+    FetchAPI.resetPage();
+    const imagesList = await FetchAPI.fetchImage();
     clearImgContainer();
-
-    appendImagesMarkup(images);
-  });
+    appendImagesMarkup(imagesList);
+  } catch (error) {
+    cautionNotify();
+    throw new Error(error);
+  }
 }
 
-function onLoadMore() {
+async function onLoadMore() {
   if (FetchAPI.searchQuery === '') {
     return;
   }
-  FetchAPI.fetchImage().then(appendImagesMarkup);
+  try {
+    const imagesList = await FetchAPI.fetchImage();
+    appendImagesMarkup(imagesList);
+  } catch (error) {
+    cautionNotify();
+    throw new Error(error);
+  }
 }
 
 function appendImagesMarkup(images) {
