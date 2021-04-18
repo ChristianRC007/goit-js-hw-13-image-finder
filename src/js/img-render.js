@@ -2,9 +2,11 @@ import FetchAPI from './apiService.js';
 import cardTemplate from '../templates/img-card-thumb.hbs';
 import refs from './refs.js';
 import cautionNotify from './notify.js';
+import * as basicLightbox from 'basiclightbox';
 
 refs.searchForm.addEventListener('submit', findImg);
-refs.loadButton.addEventListener('click', onLoadMore);
+refs.imgList.addEventListener('click', openGallery);
+// refs.loadButton.addEventListener('click', onLoadMore);
 
 async function findImg(e) {
   e.preventDefault();
@@ -42,4 +44,14 @@ function appendImagesMarkup(images) {
 
 function clearImgContainer() {
   refs.imgList.innerHTML = '';
+}
+
+function openGallery(e) {
+  if (e.target.localName === 'img') {
+    const instance = basicLightbox.create(`
+    <img src=${e.target.dataset.source} width="800" height="600">
+`);
+
+    instance.show();
+  }
 }
