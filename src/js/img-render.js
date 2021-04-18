@@ -47,6 +47,7 @@ const observer = new IntersectionObserver(
   (entries, observer) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
+        observer.unobserve(entry.target);
         FetchAPI.fetchImage()
           .then(appendImagesMarkup)
           .catch(error => {
