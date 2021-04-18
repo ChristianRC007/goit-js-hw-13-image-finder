@@ -6,7 +6,6 @@ import * as basicLightbox from 'basiclightbox';
 
 refs.searchForm.addEventListener('submit', findImg);
 refs.imgList.addEventListener('click', openGallery);
-// refs.loadButton.addEventListener('click', onLoadMore);
 
 async function findImg(e) {
   e.preventDefault();
@@ -25,21 +24,9 @@ async function findImg(e) {
   }
 }
 
-async function onLoadMore() {
-  if (FetchAPI.searchQuery === '') {
-    return;
-  }
-  try {
-    const imagesList = await FetchAPI.fetchImage();
-    appendImagesMarkup(imagesList);
-  } catch (error) {
-    cautionNotify();
-    throw new Error(error);
-  }
-}
-
 function appendImagesMarkup(images) {
   refs.imgList.insertAdjacentHTML('beforeend', cardTemplate(images));
+  observer.observe(refs.imgList.lastElementChild);
 }
 
 function clearImgContainer() {
@@ -55,3 +42,21 @@ function openGallery(e) {
     instance.show();
   }
 }
+
+const observer = new IntersectionObserver(
+  (entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        FetchAPI.fetchImage()
+          .then(appendImagesMarkup)
+          .catch(error => {
+            cautionNotify();
+            throw new Error(error);
+          });
+      }
+    });
+  },
+  {
+    threshold: 0.25,
+  },
+);
